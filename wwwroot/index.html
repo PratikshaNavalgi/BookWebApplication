@@ -3,27 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/css/style.css">
     <title>Book List App</title>
+    <link rel="stylesheet" href="/css/style.css">
+
 </head>
 <body>
-    <h1>Book List</h1>
-    <div class="container">
-        <div class="buttons">
-            <button id="getBooks">Get Books</button>
-            <button id="getHardcover">Hardcover Only</button>
-        </div>
-        <div class="book-sections">
-            <div class="section" id="adultSection">
-                <h2>Books owned by Adults</h2>
-                <ul id="adultBooks"></ul>
-            </div>
-            <div class="section" id="childSection">
-                <h2>Books owned by Children</h2>
-                <ul id="childBooks"></ul>
-            </div>
-        </div>
-    </div>
+    <h1>Book List App</h1>
+    <button id="getBooks">Get Books</button>
+    <button id="getHardcover">Hardcover only</button>
+
+    <h2 id="adultHeading">Books owned by Adults</h2>
+    <ul id="adultBooks"></ul>
+
+    <h2 id="childrenHeading">Books owned by Children</h2>
+    <ul id="childrenBooks"></ul>
+
     <script src="/js/app.js"></script>
 </body>
 </html>

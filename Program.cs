@@ -1,10 +1,17 @@
+using BookWebApplication;
+using BookWebApplication.Services;
+using BookWebApplication.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.Configure<ExternalApiSettings>(builder.Configuration.GetSection("ExternalApi"));
 
-// Used to have swagger
-// builder.Services.AddSwaggerGen();
-//builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddHttpClient();
+
+builder.Services.AddScoped<IBookService, BookService>();
+
+
+builder.Services.AddControllers();
 
 var app = builder.Build();
 

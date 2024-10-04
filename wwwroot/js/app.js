@@ -1,58 +1,36 @@
-﻿document.getElementById('getBooks').addEventListener('click', function () {
-    fetchBooks(false);
-});
-
-document.getElementById('getHardcover').addEventListener('click', function () {
-    fetchBooks(true);
-});
+﻿document.getElementById('getBooks').addEventListener('click', () => fetchBooks(false));
+document.getElementById('getHardcover').addEventListener('click', () => fetchBooks(true));
 
 function fetchBooks(hardcoverOnly) {
-    const url = `/api/books?hardcoverOnly=${hardcoverOnly}`;
-    fetch(url)
+    const adultBooksUl = document.getElementById('adultBooks');
+    const childrenBooksUl = document.getElementById('childrenBooks');
+    const adultHeading = document.getElementById('adultHeading');
+    const childrenHeading = document.getElementById('childrenHeading');
+
+    const endpoint = `https://localhost:5001/api/books?hardcoverOnly=${hardcoverOnly}`;
+
+    fetch(endpoint)
         .then(response => response.json())
-        .then(data => displayBooks(data, hardcoverOnly))
-        .catch(error => console.error('Fetch error:', error));
-}
+        .then(data => {
+            adultBooksUl.innerHTML = '';
+            childrenBooksUl.innerHTML = '';
 
-function displayBooks(data, hardcoverOnly) {
-    const adultBooks = document.getElementById('adultBooks');
-    const childBooks = document.getElementById('childBooks');
+            data.forEach(owner => {
+                const list = owner.Category === 'Adults' ? adultBooksUl : childrenBooksUl;
+                owner.Books.forEach(book => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = book.Name;
+                    list.appendChild(listItem);
+                });
+            });
 
-    adultBooks.innerHTML = '';
-    childBooks.innerHTML = '';
-
-    const adultBooksArray = [];
-    const childBooksArray = [];
-
-    data.forEach(owner => {
-        owner.Books.forEach(book => {
-            if (!hardcoverOnly || book.Type === 'Hardcover') {
-                const bookItem = { name: book.Name, age: owner.Age };
-                if (owner.Age >= 18) {
-                    adultBooksArray.push(bookItem);
-                } else {
-                    childBooksArray.push(bookItem);
-                }
+            if (hardcoverOnly) {
+                adultHeading.textContent = 'Hardcover Books owned by Adults';
+                childrenHeading.textContent = 'Hardcover Books owned by Children';
+            } else {
+                adultHeading.textContent = 'Books owned by Adults';
+                childrenHeading.textContent = 'Books owned by Children';
             }
-        });
-    });
-
-    adultBooksArray.sort((a, b) => a.name.localeCompare(b.name));
-    childBooksArray.sort((a, b) => a.name.localeCompare(b.name));
-
-    adultBooksArray.forEach(book => {
-        const li = document.createElement('li');
-        li.textContent = book.name;
-        adultBooks.appendChild(li);
-    });
-
-    childBooksArray.forEach(book => {
-        const li = document.createElement('li');
-        li.textContent = book.name;
-        childBooks.appendChild(li);
-    });
-
-    // Update section headers
-    document.getElementById('adultSection').querySelector('h2').textContent = hardcoverOnly ? 'Hardcover Books owned by Adults' : 'Books owned by Adults';
-    document.getElementById('childSection').querySelector('h2').textContent = hardcoverOnly ? 'Hardcover Books owned by Children' : 'Books owned by Children';
+        })
+        .catch(error => console.error('Error fetching data:', error));
 }

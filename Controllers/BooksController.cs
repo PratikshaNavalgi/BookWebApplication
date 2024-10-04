@@ -1,5 +1,5 @@
-﻿using BookWebApplication.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using BookWebApplication.Services;
 
 namespace BookWebApplication.Controllers
 {
@@ -7,37 +7,27 @@ namespace BookWebApplication.Controllers
     [Route("api/[controller]")]
     public class BooksController : ControllerBase
     {
-        // Mock Data
-        private List<Owner> owners = new List<Owner>
-    {
-        new Owner { Name = "Alice", Age = 25, Books = new List<Book> { new Book { Name = "Book A", Type = "Hardcover" } }},
-        new Owner { Name = "Bob", Age = 15, Books = new List<Book> { new Book { Name = "Book B", Type = "Paperback" }, new Book { Name = "Book C", Type = "Hardcover" } }}
-    };
+        private readonly IBookService _bookService;
+
+        public BooksController(IBookService bookService)
+        {
+            _bookService = bookService;
+        }
 
         [HttpGet]
-
-        public IActionResult GetBooks([FromQuery] bool hardcoverOnly = false)
-        {           
-            var adults = owners.Where(o => o.Age >= 18).ToList();
-            var children = owners.Where(o => o.Age < 18).ToList();
-
-            if (hardcoverOnly)
+        public async Task<IActionResult> GetBooks([FromQuery] bool hardcoverOnly = false)
+        {
+            try
             {
-                adults.ForEach(a => a.Books = a.Books.Where(b => b.Type == "Hardcover").ToList());
-                children.ForEach(c => c.Books = c.Books.Where(b => b.Type == "Hardcover").ToList());
+                var books = await _bookService.GetBooksAsync(hardcoverOnly);
+                return Ok(books);
             }
-
-            adults.ForEach(a => a.Books = a.Books.OrderBy(b => b.Name).ToList());
-            children.ForEach(c => c.Books = c.Books.OrderBy(b => b.Name).ToList());
-
-            var result = new
+            catch (HttpRequestException ex)
             {
-                Adults = adults,
-                Children = children
-            };
-
-            return Ok(result);
+                return StatusCode(500, $"Error fetching books: {ex.Message}");
+            }
         }
     }
+
 
 }
